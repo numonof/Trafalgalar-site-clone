@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Receptionist Dashboard</h1>
+    </header>
+    <div class="container">
+        <h2>Add New Patient</h2>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter patient name">
+        </div>
+        <div class="form-group">
+            <label for="contact">Contact</label>
+            <input type="text" id="contact" placeholder="Enter patient contact">
+        </div>
+        <div class="form-group">
+            <label for="illness">Illness</label>
+            <input type="text" id="illness" placeholder="Enter patient illness">
+        </div>
+        <button class="button" onclick="addPatient()">Add Patient</button>
+
+        <div class="table-container">
+            <h2>Patient List</h2>
+            <table id="patientTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Illness</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Patients will be listed here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Load patients from localStorage on page load
+        document.addEventListener("DOMContentLoaded", loadPatients);
+
+        function addPatient() {
+            const name = document.getElementById('name').value;
+            const contact = document.getElementById('contact').value;
+            const illness = document.getElementById('illness').value;
+
+            if (name === "" || contact === "" || illness === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const patient = { name, contact, illness };
+            let patients = JSON.parse(localStorage.getItem('patients')) || [];
+            patients.push(patient);
+            localStorage.setItem('patients', JSON.stringify(patients));
+
+            appendPatientToTable(patient);
+            document.getElementById('name').value = "";
+            document.getElementById('contact').value = "";
+            document.getElementById('illness').value = "";
+        }
+
+        function appendPatientToTable(patient) {
+            const table = document.getElementById('patientTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+
+            const cellName = row.insertCell(0);
+            const cellContact = row.insertCell(1);
+            const cellIllness = row.insertCell(2);
+            const cellActions = row.insertCell(3);
+
+            cellName.textContent = patient.name;
+            cellContact.textContent = patient.contact;
+            cellIllness.textContent = patient.illness;
+            cellActions.innerHTML = `
+                <button class="button" onclick="deletePatient(this)">Delete</button>
+                <button class="button" onclick="markAsSeen(this)">Mark as Seen</button>`;
+        }
+
+        function loadPatients() {
+            const patients = JSON.parse(localStorage.getItem('patients')) || [];
+            patients.forEach(appendPatientToTable);
+        }
+
+        function deletePatient(button) {
+            const row = button.parentNode.parentNode;
+            const name = row.cells[0].textContent;
+
+            let patients = JSON.parse(localStorage.getItem('patients')) || [];
+            patients = patients.filter(patient => patient.name !== name);
+            localStorage.setItem('patients', JSON.stringify(patients));
+
+            row.remove();
+        }
+
+        function markAsSeen(button) {
+            const row = button.parentNode.parentNode;
+            row.style.backgroundColor = "#d4edda";
+            button.remove();
+        }
+    </script>
+</body>
+</html>
